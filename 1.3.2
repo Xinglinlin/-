@@ -1,0 +1,48 @@
+n = c(100,1000,10000)
+t = c(0.0,0.67,0.84,1.28,1.65,2.32,2.58,3.09,3.72)
+
+data1 = data.frame()#创建空的表格
+
+
+for (i in n){
+  p_e_list = c()#创建空的向量
+  s =1 #计数工具
+  for (j in t){
+    x = rnorm(i)
+    p_e = length(x[x<=j])/i#模拟概率
+#    p_t = pnorm(j)
+#    error = p_t - p_e
+    p_e_list[s]=p_e
+    s = s+1    
+  }
+  data1<- rbind(data1, p_e_list)
+}
+
+p_t = pnorm(t)
+data1 <-rbind(data1,p_t)
+colnames(data1) <- t
+rownames(data1) <- c("p_100","p_1000","p_10000","p_true")
+n =100
+data2 = data.frame()
+error_100 = c()
+for (i in 1:100){
+  s =1
+  for (j in t){
+    x = rnorm(n)
+    p_e = length(x[x<=j])/n
+    p_t = pnorm(j)
+    error = abs(p_t - p_e)
+    error_100[s]=error
+    s = s+1    
+  }
+  data2<- rbind(data2, error_100)
+}
+colnames(data2) <- t
+
+library(ggplot2) #导入ggplot2
+library(reshape2) #导入reshape包，对上述表格重塑为ggplot适用的形式
+data_reshape = melt(data2)# 
+
+colnames(data_reshape)=c("t_100","error")#修改列名
+View(data_reshape)#查看修改后的表格
+ggplot(data_reshape, aes(x=t_100 ,y = error))+geom_boxplot()#展示
